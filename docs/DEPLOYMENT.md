@@ -5,7 +5,7 @@
 MiroFish 是一个基于知识图谱的模拟环境构建系统，包含以下服务：
 
 - **Backend**: Flask API 服务 (端口 5001)
-- **Frontend**: Vue.js 前端应用 (端口 3000)
+- **Frontend**: Vue.js 前端应用 (端口 3001)
 - **Neo4j**: 图数据库 (端口 7474, 7687)
 - **Qdrant**: 向量数据库 (端口 6333, 6334)
 
@@ -90,7 +90,7 @@ docker compose logs -f mirofish
 
 ### 4. 访问应用
 
-- 前端应用: http://localhost:3000
+- 前端应用: http://localhost:3001
 - 后端 API: http://localhost:5001
 - Neo4j 浏览器: http://localhost:7474 (用户名: neo4j, 密码: 见 .env)
 - Qdrant 控制台: http://localhost:6333/dashboard
@@ -195,6 +195,48 @@ docker push your-registry.com/mirofish:latest
 
 ```bash
 kubectl apply -f k8s/
+```
+
+### 5. 国内网络 / Docker 镜像拉取超时
+
+如果 `docker compose up -d` 时出现如下错误：
+
+```
+net/http: TLS handshake timeout
+failed to resolve source metadata for docker.io/library/python:3.11-slim
+```
+
+原因是 Docker daemon 配置的国内镜像加速器（如 `hub-mirror.c.163.com`）已失效。
+
+**解决方案：使用 Clash 全局代理（推荐）**
+
+如果你已在主机开启了 Clash 全局代理（默认 HTTP 端口 7890），运行以下脚本让 Docker daemon 走代理：
+
+```bash
+bash scripts/setup-docker-proxy.sh
+```
+
+脚本会：
+1. 创建 `/etc/systemd/system/docker.service.d/http-proxy.conf` 配置 dockerd 走代理
+2. 从 `/etc/docker/daemon.json` 中移除已失效的 `registry-mirrors`
+3. 重启 Docker daemon
+
+如果 Clash 代理端口不是 7890，可以传参指定：
+
+```bash
+bash scripts/setup-docker-proxy.sh 127.0.0.1 <你的端口>
+```
+
+脚本执行完毕后，再次运行：
+
+```bash
+docker compose up -d
+```
+
+**验证代理是否生效：**
+
+```bash
+docker info | grep -A3 "HTTP Proxy"
 ```
 
 ## 常见问题

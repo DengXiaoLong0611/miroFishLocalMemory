@@ -1,3 +1,9 @@
+# 如果拉取镜像时遇到 TLS 超时，可在 /etc/docker/daemon.json 中添加国内镜像加速：
+# {
+#   "registry-mirrors": ["https://dockerhub.timedin.top", "https://hub-mirror.c.163.com"]
+# }
+# 修改后执行：sudo systemctl daemon-reload && sudo systemctl restart docker
+
 services:
   mirofish:
     build:

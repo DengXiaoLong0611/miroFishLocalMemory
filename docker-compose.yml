@@ -1,0 +1,73 @@
+services:
+  mirofish:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: mirofish:latest
+    container_name: mirofish
+    env_file:
+      - .env
+    environment:
+      - DOCKER_ENV=true
+    ports:
+      - "3001:3001"
+      - "5001:5001"
+    restart: unless-stopped
+    volumes:
+      - ./backend/uploads:/app/backend/uploads
+      - ./models/local_model:/root/.cache/huggingface/hub/local_model  # 本地 embedding 模型
+      - hf_cache:/root/.cache/huggingface/hub  # HuggingFace 模型缓存（用于其他模型）
+    depends_on:
+      - neo4j
+      - qdrant
+    networks:
+      - mirofish-network
+
+  # Neo4j 图数据库 (本地 Zep 替代方案)
+  neo4j:
+    image: neo4j:5.25-community
+    container_name: mirofish-neo4j
+    environment:
+      - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD:-mirofish123}
+      - NEO4J_PLUGINS=["apoc"]
+      - NEO4J_dbms_memory_heap_initial__size=512m
+      - NEO4J_dbms_memory_heap_max__size=1G
+    ports:
+      - "7474:7474"  # HTTP
+      - "7687:7687"  # Bolt
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+    restart: unless-stopped
+    networks:
+      - mirofish-network
+    healthcheck:
+      test: ["CMD", "cypher-shell", "-u", "neo4j", "-p", "${NEO4J_PASSWORD:-mirofish123}", "RETURN 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Qdrant 向量数据库 (本地 Zep 语义搜索替代方案)
+  # 注意: 精简版镜像无 curl，healthcheck 已禁用（服务正常运行）
+  qdrant:
+    image: qdrant/qdrant:v1.12.4
+    container_name: mirofish-qdrant
+    ports:
+      - "6333:6333"  # HTTP
+      - "6334:6334"  # gRPC
+    volumes:
+      - qdrant_data:/qdrant/storage
+    restart: unless-stopped
+    networks:
+      - mirofish-network
+    # healthcheck 已禁用 - 镜像不含 curl，但服务正常运行
+
+networks:
+  mirofish-network:
+    driver: bridge
+
+volumes:
+  neo4j_data:
+  neo4j_logs:
+  qdrant_data:
+  hf_cache:  # HuggingFace 模型缓存卷

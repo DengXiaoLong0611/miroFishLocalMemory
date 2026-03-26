@@ -33,9 +33,8 @@ RUN pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple -r ba
 # 复制项目源码
 COPY . .
 
-# 创建 HuggingFace 缓存目录并复制本地模型
+# 创建 HuggingFace 缓存目录（模型通过卷挂载在运行时提供）
 RUN mkdir -p /root/.cache/huggingface/hub/local_model
-COPY models/local_model/ /root/.cache/huggingface/hub/local_model/
 
 EXPOSE 3000 5001
 

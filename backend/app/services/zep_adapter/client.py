@@ -65,23 +65,27 @@ class ZepClient:
             password=neo4j_password
         )
 
-        # 初始化 Embedding 服务
-        self.embedding = EmbeddingService(model=embedding_model)
-
-        # 初始化 Qdrant
-        self.qdrant = QdrantVectorService(
-            url=qdrant_url,
-            embedding_service=self.embedding
-        )
-
-        # 初始化向量服务（组合 Qdrant 和 Neo4j）
-        self.vector = VectorService(self.qdrant, self.neo4j)
-
         # 初始化图服务
         self.graph = GraphService(self.neo4j)
 
-        # 将向量服务注入到图服务的搜索中
-        self.graph.search.set_vector_service(self.vector)
+        # 向量服务只影响语义搜索；节点/边读取、图谱构建、模拟准备都只依赖 Neo4j。
+        # 本地 embedding 模型如果损坏或与当前 torch/transformers 不兼容，不能让整个图谱接口 500。
+        self.embedding = None
+        self.qdrant = None
+        self.vector = None
+        try:
+            self.embedding = EmbeddingService(model=embedding_model)
+            self.qdrant = QdrantVectorService(
+                url=qdrant_url,
+                embedding_service=self.embedding
+            )
+            self.vector = VectorService(self.qdrant, self.neo4j)
+            self.graph.search.set_vector_service(self.vector)
+        except Exception as e:
+            logger.warning(
+                "向量服务初始化失败，已降级为 Neo4j 关键词搜索；"
+                f"图谱读取和模拟准备不受影响: {e}"
+            )
 
         logger.info("ZepClient (本地适配器) 初始化完成")
 

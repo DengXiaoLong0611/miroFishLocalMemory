@@ -16,8 +16,6 @@ from dataclasses import dataclass, field
 from datetime import datetime
 
 from openai import OpenAI
-from zep_cloud.client import Zep
-
 from ..config import Config
 from ..utils.logger import get_logger
 from .zep_entity_reader import EntityNode, ZepEntityReader
@@ -202,8 +200,15 @@ class OasisProfileGenerator:
         self.zep_client = None
         self.graph_id = graph_id
         
-        if self.zep_api_key:
+        if Config.ZEP_USE_LOCAL:
             try:
+                from .zep_adapter import ZepClient
+                self.zep_client = ZepClient()
+            except Exception as e:
+                logger.warning(f"本地Zep客户端初始化失败，将跳过图谱检索增强: {e}")
+        elif self.zep_api_key:
+            try:
+                from zep_cloud.client import Zep
                 self.zep_client = Zep(api_key=self.zep_api_key)
             except Exception as e:
                 logger.warning(f"Zep客户端初始化失败: {e}")
@@ -1197,4 +1202,3 @@ class OasisProfileGenerator:
         """[已废弃] 请使用 save_profiles() 方法"""
         logger.warning("save_profiles_to_json已废弃，请使用save_profiles方法")
         self.save_profiles(profiles, file_path, platform)
-

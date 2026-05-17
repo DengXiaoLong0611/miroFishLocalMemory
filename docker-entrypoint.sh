@@ -55,26 +55,33 @@ cat > /tmp/xray-config.json <<EOFX
 EOFX
 
 # 启动 Xray 代理（后台运行）
-echo "Starting Xray proxy..."
-/usr/local/bin/xray run -c /tmp/xray-config.json &
-XRAY_PID=$!
+XRAY_PID=""
+if command -v /usr/local/bin/xray >/dev/null 2>&1; then
+  echo "Starting Xray proxy..."
+  /usr/local/bin/xray run -c /tmp/xray-config.json &
+  XRAY_PID=$!
 
-# 等待代理启动
-sleep 3
+  # 等待代理启动
+  sleep 3
 
-# 设置代理环境变量
-export http_proxy=http://127.0.0.1:20808
-export https_proxy=http://127.0.0.1:20808
-export HTTP_PROXY=http://127.0.0.1:20808
-export HTTPS_PROXY=http://127.0.0.1:20808
-export no_proxy=localhost,127.0.0.1,neo4j,qdrant,dashscope.aliyuncs.com,aliyuncs.com
+  # 设置代理环境变量
+  export http_proxy=http://127.0.0.1:20808
+  export https_proxy=http://127.0.0.1:20808
+  export HTTP_PROXY=http://127.0.0.1:20808
+  export HTTPS_PROXY=http://127.0.0.1:20808
+  export no_proxy=localhost,127.0.0.1,neo4j,qdrant,dashscope.aliyuncs.com,aliyuncs.com
 
-echo "Proxy configured. Starting application..."
+  echo "Proxy configured. Starting application..."
+else
+  echo "Xray not found, starting application without proxy"
+fi
 
 # 清理函数
 cleanup() {
+  if [ -n "$XRAY_PID" ]; then
     echo "Stopping Xray..."
     kill $XRAY_PID 2>/dev/null
+  fi
 }
 
 # 注册清理

@@ -58,6 +58,11 @@ backend/uploads/
 # Docker 数据
 data/
 
+# 本地运行产物
+.local/
+Microsoft/
+backend/.cache/
+
 # Auto Claude data directory
 .auto-claude/
 

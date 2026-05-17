@@ -4,6 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     image: mirofish:latest
+    pull_policy: never
     container_name: mirofish
     env_file:
       - .env
@@ -25,7 +26,7 @@ services:
 
   # Neo4j 图数据库 (本地 Zep 替代方案)
   neo4j:
-    image: neo4j:5.25-community
+    image: neo4j:5.24-community
     container_name: mirofish-neo4j
     environment:
       - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD:-mirofish123}

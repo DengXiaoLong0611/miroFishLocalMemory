@@ -15,7 +15,7 @@ from openai import OpenAI
 
 from ...config import Config
 from ...utils.logger import get_logger
-from .types import Node, Edge, EdgeInfo, NodeInfo
+from .types import Node, Edge, EdgeInfo, NodeInfo, GraphSearchResult
 
 logger = get_logger('mirofish.zep_adapter.graph')
 
@@ -587,8 +587,10 @@ class Neo4jRepository:
         RETURN r.uuid as uuid, r.name as name, r.fact as fact,
                s.uuid as source_uuid, t.uuid as target_uuid,
                s.name as source_name, t.name as target_name,
-               r.created_at as created_at, r.valid_at as valid_at,
-               r.invalid_at as invalid_at, r.expired_at as expired_at
+               properties(r).created_at as created_at,
+               properties(r).valid_at as valid_at,
+               properties(r).invalid_at as invalid_at,
+               properties(r).expired_at as expired_at
         """
         results = self._execute_query(query, {"graph_id": graph_id})
 

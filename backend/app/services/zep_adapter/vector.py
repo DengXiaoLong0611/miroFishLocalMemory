@@ -7,6 +7,7 @@ Qdrant 向量数据库服务
 import os
 import time
 import uuid
+import threading
 from typing import Dict, Any, List, Optional, Tuple
 from datetime import datetime
 
@@ -28,6 +29,9 @@ class EmbeddingService:
     1. 云端 API (OpenAI/阿里云)
     2. 本地模型 (sentence-transformers)
     """
+
+    _local_model_lock = threading.Lock()
+    _local_model_cache: Dict[str, Any] = {}
 
     def __init__(
         self,
@@ -81,6 +85,7 @@ class EmbeddingService:
             # 容器内: /root/.cache/huggingface/hub/local_model
             # 宿主机: /mnt/sda/MiroFish/models/local_model
             local_model_dirs = [
+                self.local_model_path,
                 '/root/.cache/huggingface/hub/local_model',  # 容器内预装模型
                 '/mnt/sda/MiroFish/models/local_model',  # 宿主机模型目录
                 '/mnt/sda/MiroFish/backend/.venv/models/models--sentence-transformers--paraphrase-multilingual-MiniLM-L12-v2/snapshots/e8f8c211226b894fcb81acc59f3b34ba3efd5f42',
@@ -88,7 +93,7 @@ class EmbeddingService:
 
             model_path_to_load = None
             for path in local_model_dirs:
-                if os.path.exists(path):
+                if path and os.path.exists(path):
                     model_path_to_load = path
                     logger.info(f"使用本地模型路径: {path}")
                     break
@@ -108,8 +113,15 @@ class EmbeddingService:
                 model_path_to_load = self.local_model_path
                 logger.warning(f"未找到本地模型文件，尝试使用: {model_path_to_load}")
 
-            logger.info(f"正在加载本地 embedding 模型: {self.local_model_path}")
-            self.local_model = SentenceTransformer(model_path_to_load)
+            logger.info(f"正在加载本地 embedding 模型: {model_path_to_load}")
+            with self._local_model_lock:
+                if model_path_to_load in self._local_model_cache:
+                    self.local_model = self._local_model_cache[model_path_to_load]
+                    logger.info("复用已加载的本地 embedding 模型")
+                else:
+                    self.local_model = SentenceTransformer(model_path_to_load)
+                    self._local_model_cache[model_path_to_load] = self.local_model
+
             self.vector_size = self.local_model.get_sentence_embedding_dimension()
             logger.info(f"本地 embedding 模型加载完成: vector_size={self.vector_size}")
         except ImportError:
@@ -729,6 +741,21 @@ class VectorService:
             (边列表, 节点列表)
         """
         return self.qdrant.search_by_text(
+            graph_id=graph_id,
+            query=query,
+            limit=limit,
+            scope=scope
+        )
+
+    def search_by_text(
+        self,
+        graph_id: str,
+        query: str,
+        limit: int = 10,
+        scope: str = "edges"
+    ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+        """Compatibility alias used by GraphService.SearchOperations."""
+        return self.search(
             graph_id=graph_id,
             query=query,
             limit=limit,

@@ -87,6 +87,11 @@
 
         <!-- Workflow Overview (flat, status-based palette) -->
         <div class="workflow-overview" v-if="agentLogs.length > 0 || reportOutline">
+          <div v-if="isFailed && failureMessage" class="report-error-banner">
+            <span class="report-error-label">REPORT FAILED</span>
+            <span class="report-error-message">{{ failureMessage }}</span>
+          </div>
+
           <div class="workflow-metrics">
             <div class="metric">
               <span class="metric-label">Sections</span>
@@ -425,6 +430,8 @@ const expandedContent = ref(new Set())
 const expandedLogs = ref(new Set())
 const collapsedSections = ref(new Set())
 const isComplete = ref(false)
+const isFailed = ref(false)
+const failureMessage = ref('')
 const startTime = ref(null)
 const leftPanel = ref(null)
 const rightPanel = ref(null)
@@ -1671,12 +1678,14 @@ const QuickSearchDisplay = {
 
 // Computed
 const statusClass = computed(() => {
+  if (isFailed.value) return 'failed'
   if (isComplete.value) return 'completed'
   if (agentLogs.value.length > 0) return 'processing'
   return 'pending'
 })
 
 const statusText = computed(() => {
+  if (isFailed.value) return 'Failed'
   if (isComplete.value) return 'Completed'
   if (agentLogs.value.length > 0) return 'Generating...'
   return 'Waiting'
@@ -1715,6 +1724,7 @@ const displayLogs = computed(() => {
 
 // Workflow steps overview (status-based, no nested cards)
 const activeSectionIndex = computed(() => {
+  if (isFailed.value) return null
   if (isComplete.value) return null
   if (currentSectionIndex.value) return currentSectionIndex.value
   if (totalSections.value > 0 && completedSections.value < totalSections.value) return completedSections.value + 1
@@ -2003,6 +2013,14 @@ const fetchAgentLog = async () => {
             stopPolling()
             // 滚动逻辑统一在循环结束后的 nextTick 中处理
           }
+
+          if (log.action === 'error') {
+            isFailed.value = true
+            failureMessage.value = log.details?.message || log.details?.error || 'Report generation failed'
+            currentSectionIndex.value = null
+            emit('update-status', 'failed')
+            stopPolling()
+          }
           
           if (log.action === 'report_start') {
             startTime.value = new Date(log.timestamp)
@@ -2144,6 +2162,8 @@ watch(() => props.reportId, (newId) => {
     expandedLogs.value = new Set()
     collapsedSections.value = new Set()
     isComplete.value = false
+    isFailed.value = false
+    failureMessage.value = ''
     startTime.value = null
     
     startPolling()
@@ -2664,6 +2684,32 @@ watch(() => props.reportId, (newId) => {
   padding: 16px 20px 0 20px;
 }
 
+.report-error-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+  padding: 12px 14px;
+  border: 1px solid #FCA5A5;
+  border-radius: 10px;
+  background: #FEF2F2;
+}
+
+.report-error-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #B91C1C;
+}
+
+.report-error-message {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #7F1D1D;
+  word-break: break-word;
+}
+
 .workflow-metrics {
   display: flex;
   flex-wrap: wrap;
@@ -2723,6 +2769,12 @@ watch(() => props.reportId, (newId) => {
   background: transparent;
   border-style: dashed;
   color: #6B7280;
+}
+
+.metric-pill.pill--failed {
+  background: #FEF2F2;
+  border-color: #FCA5A5;
+  color: #B91C1C;
 }
 
 .workflow-steps {

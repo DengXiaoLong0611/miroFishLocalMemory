@@ -1,0 +1,9 @@
+SECTION: NEWS_RECENT
+# 每条新闻格式：timestamp | headline | summary | source | credibility(0-1)
+# 时间请用 ISO 8601（含时区信息建议使用 UTC 后缀Z）
+
+2026-04-12T08:12:00Z | Company X 在美国申请 Product Z 商标 | Company X 向美国相关机构提交了 Product Z 的商标申请，覆盖消费电子类别。 | 官方 USPTO 记录 | 0.95
+2026-04-20T14:05:00Z | 爆料：有限原型发货给合作伙伴 | 行业博客报道 Company X 向部分合作伙伴发放原型机进行测试。 | TechInsiderBlog | 0.6
+2026-04-25T09:30:00Z | Company X 宣布与零售商 Y 建立战略合作 | Company X 签署分销合作协议，可能为美国零售渠道铺路。 | 公司新闻稿 | 0.9
+2026-05-02T16:45:00Z | 认证延迟可能影响出货 | 一家检测实验室报告无线合规认证存在积压，可能推迟上市。 | 认证实验室报告 | 0.7
+2026-05-10T11:00:00Z | 预购页面短暂上线后被撤下 | 网页快照显示 Company X 的美国站曾出现预购页面，但随后被撤下，未作解释。 | WebArchive 快照 | 0.8

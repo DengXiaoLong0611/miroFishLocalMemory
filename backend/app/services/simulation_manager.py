@@ -17,6 +17,7 @@ from ..utils.logger import get_logger
 from .zep_entity_reader import ZepEntityReader, FilteredEntities
 from .oasis_profile_generator import OasisProfileGenerator, OasisAgentProfile
 from .simulation_config_generator import SimulationConfigGenerator, SimulationParameters
+from .simulation_agent_selection import filter_agent_candidates
 
 logger = get_logger('mirofish.simulation')
 
@@ -282,6 +283,14 @@ class SimulationManager:
                 defined_entity_types=defined_entity_types,
                 enrich_with_edges=True
             )
+
+            selected_entities, selection_stats = filter_agent_candidates(filtered.entities)
+            filtered.entities = selected_entities
+            filtered.filtered_count = len(selected_entities)
+            filtered.entity_types = set(
+                entity.get_entity_type() or "Unknown" for entity in selected_entities
+            )
+            logger.info(f"Agent候选筛选完成: {selection_stats}")
             
             state.entities_count = filtered.filtered_count
             state.entity_types = list(filtered.entity_types)
@@ -289,7 +298,7 @@ class SimulationManager:
             if progress_callback:
                 progress_callback(
                     "reading", 100, 
-                    f"完成，共 {filtered.filtered_count} 个实体",
+                    f"完成，共 {filtered.filtered_count} 个可模拟Agent候选",
                     current=filtered.filtered_count,
                     total=filtered.filtered_count
                 )

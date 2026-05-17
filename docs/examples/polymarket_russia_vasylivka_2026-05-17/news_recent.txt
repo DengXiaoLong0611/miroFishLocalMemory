@@ -1,0 +1,20 @@
+SECTION: NEWS_RECENT
+# 格式：timestamp | headline | summary | source | credibility(0-1) | direction(YES/NO/neutral) | evidence_type
+
+2026-04-20T08:00:00Z | Pokrovsk方向出现42次俄军突击，其中若干次是朝Vasylivka方向 | Ukrainska Pravda转述乌军总参：俄军在Pokrovsk方向的42次突击中，部分攻击明确指向Vasylivka。这说明Vasylivka已处于俄军推进轴线，但报道措辞仍是“towards Vasylivka”，不是已进入或已控制。 | Ukrainska Pravda / General Staff of Ukraine | 0.78 | YES | battlefield_report
+
+2026-04-21T08:00:00Z | Pokrovsk方向再次出现朝Vasylivka方向的攻击 | Ukrainska Pravda转述乌军总参：乌军在Pokrovsk方向阻止了30次俄军进攻，攻击轴线包括朝Vasylivka方向推进。对市场而言，这是“持续施压”的信号，但仍未满足地图层面的控制条件。 | Ukrainska Pravda / General Staff of Ukraine | 0.78 | YES | battlefield_report
+
+2026-05-08T15:58:00Z | 乌军总司令称俄军在Pokrovsk方向集结约10.6万人 | Syrskyi称Pokrovsk方向是最紧张的地段，俄军在该方向约有106,000人。兵力规模说明俄军具备持续施压能力，是支持YES的结构性变量。 | Ukrainska Pravda / Syrskyi Telegram | 0.82 | YES | force_concentration
+
+2026-05-12T08:15:00Z | 俄军在Pokrovsk方向发动32次突击，但报道未点名Vasylivka为交战点 | 乌军总参称Pokrovsk方向冲突仍然最重，但列出的交战点主要为Rodynske、Novooleksandrivka、Hryshyne、Bilytske、Pokrovsk、Kotlyne、Udachne、Muravka、Novopidhorodne、Molodetske和Novopavlivka。Vasylivka未出现在该日列举中，偏向说明推进并不连续。 | Ukrainska Pravda / General Staff of Ukraine | 0.80 | NO | battlefield_report
+
+2026-05-13T08:15:00Z | Pokrovsk方向32次俄军突击再次点名朝Vasylivka方向推进 | 乌军总参称，Pokrovsk方向的32次突击中，攻击目标包括Rodynske、Shevchenko、Pokrovsk、Hryshyne，以及朝Vasylivka方向的推进。该条目提高了市场对短期突破的预期，但依旧属于“towards”而非“entered”。 | Ukrainska Pravda / General Staff of Ukraine | 0.80 | YES | battlefield_report
+
+2026-05-12T14:00:00Z | 俄罗斯出现汽油短缺，A-95供应已形成缺口 | Ukrainska Pravda报道称，俄罗斯在进入夏季高消费季前已出现A-95汽油供应缺口，主要原因是炼厂非计划维修与产量下降。这是俄军持续推进能力的间接负面变量，不直接决定Vasylivka战术结果，但会压低连续攻势的稳定性。 | Ukrainska Pravda / The Moscow Times / Kommersant | 0.74 | NO | logistics_constraint
+
+2026-05-15T08:15:00Z | Pokrovsk方向39次俄军突击，目标再次包括Vasylivka方向 | 乌军总参称，Pokrovsk方向39次突击中，目标包括Bilytske、Vasylivka和Novopavlivka方向。这说明在截止日前两周，Vasylivka仍是明确攻击方向，但仍未出现“已进入Vasylivka”的表述。 | Ukrainska Pravda / General Staff of Ukraine | 0.81 | YES | battlefield_report
+
+2026-05-17T06:38:58Z | 5月31日盘仍然活跃，YES价格约0.395，尚未触发决议 | Polymarket Gamma元数据显示该盘仍active，5月31日合约的outcomePrices约为Yes 0.395 / No 0.605。市场未关闭本身不是NO证据，但意味着截至抓取时并没有出现已完成决议的公开判定。 | Polymarket Gamma API | 0.92 | neutral | market_state
+
+2026-05-17T06:38:58Z | 市场描述强调“limited advances and infiltration attempts near Vasylivka”与俄军补给受限 | Polymarket盘口背景指出，Vasylivka附近出现有限推进和渗透尝试，但乌军击退多轮攻击，俄军还面临有记录的补给短缺。该背景适合作为市场情绪解释，但不应替代ISW地图本身。 | Polymarket market background | 0.55 | neutral | market_commentary

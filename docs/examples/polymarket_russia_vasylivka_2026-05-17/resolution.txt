@@ -1,0 +1,54 @@
+=== RESOLUTION ===
+市场：
+Will Russia enter Vasylivka by May 31, 2026?
+
+中文工作题目：
+俄罗斯是否会在 2026-05-31 之前进入 Vasylivka？
+
+关键说明：
+这里的 "enter" 不是泛指“靠近”或“发动攻击”，而是一个严格的地图判定事件。应以 Polymarket 决议文本为最高优先级，而不是用日常新闻措辞替代。
+
+YES 判定标准：
+如果根据 ISW Ukraine map，俄罗斯在市场创建之后、指定日期之前，取得了乌克兰顿涅茨克州 Vasylivka 任意一部分领土的控制，则判定为 YES。
+
+Vasylivka 坐标：
+48.357760 N, 37.038017 E
+
+什么算“取得控制”：
+如果 ISW 地图上，Vasylivka 指定区域的任意部分被以下任一图层持续着色，则可计入：
+- Assessed Russian Infiltration Areas in Ukraine
+- Assessed Russian Control
+- Assessed Russian Advance In Ukraine
+- Assessed Russian Gains in the Past 24 Hours
+
+持续性要求：
+相关着色必须持续到 ISW 下一个完整的日更周期之后。
+如果 ISW 跳过一天，则相关着色必须持续到下一次最终更新发布为止。
+临时地图故障或错误不计入。
+
+一旦触发：
+只要出现一次符合条件的控制并满足持续性要求，之后即便又失去控制，也不影响 YES。
+
+谈判情形：
+如果俄罗斯因谈判结果而实际控制该区域，也可计入 YES。
+但只有法律名义上的控制声明、不伴随实际控制，不计入 YES。
+
+NO 判定标准：
+到决议截止前，没有任何满足上述条件并通过持续性要求的 ISW 地图着色，则判定为 NO。
+
+主要决议源：
+- Primary: ISW Ukraine map
+- Fallback 1: DeepStateMap
+- Fallback 2: consensus of credible reporting
+
+判定边界：
+- 单纯“向 Vasylivka 方向进攻”不等于 YES
+- 单纯“接近 Vasylivka”不等于 YES
+- 单纯“发生渗透尝试”不等于 YES
+- 只有地图上出现并持续的合格着色才是核心触发条件
+
+与时间相关的注意事项：
+- Polymarket 元数据显示 endDate 为 2026-05-31T00:00:00Z
+- 但决议文本写的是 specified date (ET)
+- 在 MiroFish 分析中，应以决议文本描述为准，把时区差异作为边缘不确定性记录下来，但不要覆盖原始规则
+

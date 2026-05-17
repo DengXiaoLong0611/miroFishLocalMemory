@@ -13,6 +13,7 @@ from ..services.zep_entity_reader import ZepEntityReader
 from ..services.oasis_profile_generator import OasisProfileGenerator
 from ..services.simulation_manager import SimulationManager, SimulationStatus
 from ..services.simulation_runner import SimulationRunner, RunnerStatus
+from ..services.simulation_agent_selection import filter_agent_candidates
 from ..utils.logger import get_logger
 from ..models.project import ProjectManager
 
@@ -479,10 +480,19 @@ def prepare_simulation():
                 defined_entity_types=entity_types_list,
                 enrich_with_edges=False  # 不获取边信息，加快速度
             )
+            selected_entities, selection_stats = filter_agent_candidates(filtered_preview.entities)
+            filtered_preview.entities = selected_entities
+            filtered_preview.filtered_count = len(selected_entities)
+            filtered_preview.entity_types = set(
+                entity.get_entity_type() or "Unknown" for entity in selected_entities
+            )
             # 保存实体数量到状态（供前端立即获取）
             state.entities_count = filtered_preview.filtered_count
             state.entity_types = list(filtered_preview.entity_types)
-            logger.info(f"预期实体数量: {filtered_preview.filtered_count}, 类型: {filtered_preview.entity_types}")
+            logger.info(
+                f"预期可模拟Agent数量: {filtered_preview.filtered_count}, "
+                f"类型: {filtered_preview.entity_types}, 筛选统计: {selection_stats}"
+            )
         except Exception as e:
             logger.warning(f"同步获取实体数量失败（将在后台任务中重试）: {e}")
             # 失败不影响后续流程，后台任务会重新获取
@@ -1532,6 +1542,12 @@ def start_simulation():
             }), 404
 
         force_restarted = False
+        if force:
+            logger.info(f"强制模式：清理模拟日志 {simulation_id}")
+            cleanup_result = SimulationRunner.cleanup_simulation_logs(simulation_id)
+            if not cleanup_result.get("success"):
+                logger.warning(f"清理日志时出现警告: {cleanup_result.get('errors')}")
+            force_restarted = True
         
         # 智能处理状态：如果准备工作已完成，允许重新启动
         if state.status != SimulationStatus.READY:
@@ -1557,14 +1573,6 @@ def start_simulation():
                                 "success": False,
                                 "error": f"模拟正在运行中，请先调用 /stop 接口停止，或使用 force=true 强制重新开始"
                             }), 400
-
-                # 如果是强制模式，清理运行日志
-                if force:
-                    logger.info(f"强制模式：清理模拟日志 {simulation_id}")
-                    cleanup_result = SimulationRunner.cleanup_simulation_logs(simulation_id)
-                    if not cleanup_result.get("success"):
-                        logger.warning(f"清理日志时出现警告: {cleanup_result.get('errors')}")
-                    force_restarted = True
 
                 # 进程不存在或已结束，重置状态为 ready
                 logger.info(f"模拟 {simulation_id} 准备工作已完成，重置状态为 ready（原状态: {state.status.value}）")
@@ -1713,6 +1721,12 @@ def start_simulation_by_id(simulation_id: str):
             }), 404
 
         force_restarted = False
+        if force:
+            logger.info(f"强制模式：清理模拟日志 {simulation_id}")
+            cleanup_result = SimulationRunner.cleanup_simulation_logs(simulation_id)
+            if not cleanup_result.get("success"):
+                logger.warning(f"清理日志时出现警告: {cleanup_result.get('errors')}")
+            force_restarted = True
 
         # 智能处理状态
         if state.status != SimulationStatus.READY:
@@ -1733,13 +1747,6 @@ def start_simulation_by_id(simulation_id: str):
                                 "success": False,
                                 "error": f"模拟正在运行中，请先调用 /stop 接口停止，或使用 force=true 强制重新开始"
                             }), 400
-
-                if force:
-                    logger.info(f"强制模式：清理模拟日志 {simulation_id}")
-                    cleanup_result = SimulationRunner.cleanup_simulation_logs(simulation_id)
-                    if not cleanup_result.get("success"):
-                        logger.warning(f"清理日志时出现警告: {cleanup_result.get('errors')}")
-                    force_restarted = True
 
                 logger.info(f"模拟 {simulation_id} 准备工作已完成，重置状态为 ready（原状态: {state.status.value}）")
                 state.status = SimulationStatus.READY

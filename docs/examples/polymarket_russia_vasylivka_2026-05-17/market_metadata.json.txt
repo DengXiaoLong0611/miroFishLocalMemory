@@ -1,0 +1,55 @@
+{
+  "event_id": "300460",
+  "event_slug": "will-russia-enter-vasylivka-by",
+  "event_title": "Will Russia enter Vasylivka by...?",
+  "market_id": "2053678",
+  "market_slug": "will-russia-enter-vasylivka-by-may-31-2026",
+  "question": "Will Russia enter Vasylivka by May 31, 2026?",
+  "condition_id": "0x90e10022b250ed02d7c16dc159baa4822a4b35f1333e36e2fad968cb26efaf8d",
+  "end_date": "2026-05-31T00:00:00Z",
+  "group_item_title": "May 31",
+  "outcomes": [
+    "Yes",
+    "No"
+  ],
+  "outcome_prices_snapshot": {
+    "yes": 0.395,
+    "no": 0.605
+  },
+  "clob_token_ids": {
+    "yes": "94849762948484196776489774840530703889063110696739270514476879607667108495085",
+    "no": "102619981250881709565511088889418356426958791328978944654731061702853128362894"
+  },
+  "market_metrics_snapshot": {
+    "last_trade_price_yes": 0.41,
+    "best_ask_yes": 0.42,
+    "spread": 0.05,
+    "liquidity": 2464.8471,
+    "volume": 22384.971878999917,
+    "volume_24h": 2696.75097,
+    "volume_1w": 9650.648938999984,
+    "volume_1m": 22384.971878999986
+  },
+  "series_level_metrics_snapshot": {
+    "event_liquidity": 3344.4172,
+    "event_volume": 63434.53830699993,
+    "event_open_interest": 9847.770071,
+    "event_volume_24h": 1474.9883699999998,
+    "event_volume_1w": 8428.886338999984,
+    "event_volume_1m": 21163.209278999984
+  },
+  "resolution_logic_summary": {
+    "primary_source": "ISW Ukraine map",
+    "fallback_source_1": "DeepStateMap",
+    "fallback_source_2": "consensus of credible reporting",
+    "requires_persistent_map_shading": true,
+    "qualifying_layers": [
+      "Assessed Russian Infiltration Areas in Ukraine",
+      "Assessed Russian Control",
+      "Assessed Russian Advance In Ukraine",
+      "Assessed Russian Gains in the Past 24 Hours"
+    ]
+  },
+  "retrieved_at": "2026-05-17T06:38:58Z"
+}
+

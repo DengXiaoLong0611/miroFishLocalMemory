@@ -4,6 +4,7 @@
 """
 
 import os
+import sys
 from dotenv import load_dotenv
 
 # 加载项目根目录的 .env 文件
@@ -93,8 +94,9 @@ class Config:
     OASIS_DEFAULT_MAX_ROUNDS = int(os.environ.get('OASIS_DEFAULT_MAX_ROUNDS', '10'))
     OASIS_SIMULATION_DATA_DIR = os.path.join(os.path.dirname(__file__), '../uploads/simulations')
 
-    # 模拟脚本使用的 Python 解释器（camel-ai 需要 Python 3.12）
-    SIMULATION_PYTHON = os.environ.get('SIMULATION_PYTHON', 'python3.12')
+    # 模拟脚本使用的 Python 解释器。
+    # 默认复用后端当前解释器，避免子进程落到未安装项目依赖的系统 Python。
+    SIMULATION_PYTHON = os.environ.get('SIMULATION_PYTHON', sys.executable)
     
     # OASIS平台可用动作配置
     OASIS_TWITTER_ACTIONS = [
@@ -127,4 +129,3 @@ class Config:
                 errors.append("ZEP_API_KEY 未配置 (云端模式需要)")
 
         return errors
-

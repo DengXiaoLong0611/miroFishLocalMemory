@@ -117,6 +117,16 @@ class MaxTokensWarningFilter(logging.Filter):
 logging.getLogger().addFilter(MaxTokensWarningFilter())
 
 
+def is_local_openai_compatible_base_url(base_url: str) -> bool:
+    if not base_url:
+        return False
+    normalized = base_url.strip().lower()
+    return any(
+        marker in normalized
+        for marker in ['localhost', '127.0.0.1', '0.0.0.0', 'host.docker.internal', '::1']
+    )
+
+
 def disable_oasis_logging():
     """
     禁用 OASIS 库的详细日志输出
@@ -1001,7 +1011,11 @@ def create_model(config: Dict[str, Any], use_boost: bool = False):
     boost_api_key = os.environ.get("LLM_BOOST_API_KEY", "")
     boost_base_url = os.environ.get("LLM_BOOST_BASE_URL", "")
     boost_model = os.environ.get("LLM_BOOST_MODEL_NAME", "")
-    has_boost_config = bool(boost_api_key)
+    has_boost_config = bool(
+        boost_api_key or (
+            boost_base_url and boost_model and is_local_openai_compatible_base_url(boost_base_url)
+        )
+    )
     
     # 根据参数和配置情况选择使用哪个 LLM
     if use_boost and has_boost_config:
@@ -1024,7 +1038,9 @@ def create_model(config: Dict[str, Any], use_boost: bool = False):
     # 设置 camel-ai 所需的环境变量
     if llm_api_key:
         os.environ["OPENAI_API_KEY"] = llm_api_key
-    
+    elif llm_base_url and is_local_openai_compatible_base_url(llm_base_url):
+        os.environ["OPENAI_API_KEY"] = "local"
+
     if not os.environ.get("OPENAI_API_KEY"):
         raise ValueError("缺少 API Key 配置，请在项目根目录 .env 文件中设置 LLM_API_KEY")
     

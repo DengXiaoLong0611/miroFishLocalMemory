@@ -50,6 +50,16 @@ else:
 import re
 
 
+def _is_local_openai_compatible_base_url(base_url: str) -> bool:
+    if not base_url:
+        return False
+    normalized = base_url.strip().lower()
+    return any(
+        marker in normalized
+        for marker in ['localhost', '127.0.0.1', '0.0.0.0', 'host.docker.internal', '::1']
+    )
+
+
 class UnicodeFormatter(logging.Formatter):
     """自定义格式化器，将 Unicode 转义序列转换为可读字符"""
     
@@ -445,7 +455,9 @@ class TwitterSimulationRunner:
         # 设置 camel-ai 所需的环境变量
         if llm_api_key:
             os.environ["OPENAI_API_KEY"] = llm_api_key
-        
+        elif llm_base_url and _is_local_openai_compatible_base_url(llm_base_url):
+            os.environ["OPENAI_API_KEY"] = "local"
+
         if not os.environ.get("OPENAI_API_KEY"):
             raise ValueError("缺少 API Key 配置，请在项目根目录 .env 文件中设置 LLM_API_KEY")
         

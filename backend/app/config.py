@@ -25,6 +25,22 @@ else:
     load_dotenv(override=False)
 
 
+def _is_local_openai_compatible_base_url(base_url: str) -> bool:
+    """判断 base_url 是否指向本地 OpenAI 兼容服务。"""
+    if not base_url:
+        return False
+
+    normalized = base_url.strip().lower()
+    local_markers = [
+        'localhost',
+        '127.0.0.1',
+        '0.0.0.0',
+        'host.docker.internal',
+        '::1',
+    ]
+    return any(marker in normalized for marker in local_markers)
+
+
 class Config:
     """Flask配置类"""
     
@@ -39,8 +55,12 @@ class Config:
     JSON_AS_ASCII = False
     
     # LLM配置（统一使用OpenAI格式，默认阿里云DashScope）
-    LLM_API_KEY = os.environ.get('LLM_API_KEY')
     LLM_BASE_URL = os.environ.get('LLM_BASE_URL', 'https://dashscope.aliyuncs.com/compatible-mode/v1')
+    _llm_api_key = os.environ.get('LLM_API_KEY')
+    if not _llm_api_key and _is_local_openai_compatible_base_url(LLM_BASE_URL):
+        _llm_api_key = 'local'
+        os.environ.setdefault('LLM_API_KEY', _llm_api_key)
+    LLM_API_KEY = _llm_api_key
     LLM_MODEL_NAME = os.environ.get('LLM_MODEL_NAME', 'qwen-plus')
     
     # Zep配置
